@@ -1,0 +1,25 @@
+<div *ngIf="usuario">
+    <p>Bienvenido, {{ usuario.strNombre }} (Rol: {{ rol }})</p>
+  
+    <!-- Mostrar enlace para Cerrar Sesión -->
+    <a href="javascript:void(0)" (click)="cerrarSesion()">Cerrar Sesión</a>
+  
+    <!-- Este enlace solo aparece si el rol es "admin" -->
+    <a *ngIf="rol === 'admin'" href="javascript:void(0)" (click)="navegarPanelAdmin()">Acceder al Panel Admin</a>
+  </div>
+  
+  <!-- Formulario de login -->
+  <div *ngIf="!usuario">
+    <h2>Iniciar Sesión</h2>
+  
+    <div *ngIf="errorLogin" class="error">{{ errorLogin }}</div>
+  
+    <label>Usuario:</label>
+    <input type="text" [(ngModel)]="credenciales.strNombre" placeholder="Ingrese su usuario">
+  
+    <label>Contraseña:</label>
+    <input type="password" [(ngModel)]="credenciales.strPwd" placeholder="Ingrese su contraseña">
+  
+    <button (click)="iniciarSesion()">Ingresar</button>
+  </div>
+  

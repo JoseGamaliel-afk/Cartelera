@@ -1,0 +1,119 @@
+<!-- Agregar película -->
+<div *ngIf="mostrarFormularioAgregar">
+  <h2>Agregar Película</h2>
+
+  <!-- Nombre con validación y protección contra XSS -->
+  <div>
+    <label for="strNombre">Nombre:</label>
+    <input type="text" id="strNombre" [(ngModel)]="nuevaPelicula.strNombre" maxlength="100" required />
+    <span *ngIf="nuevaPelicula.strNombre.length >= 100">Límite alcanzado: 100 caracteres</span>
+    <span *ngIf="nuevaPelicula.strNombre.length === 0">El nombre es obligatorio</span>
+  </div>
+
+  <!-- Género con validación -->
+  <div>
+    <label for="strGenero">Género:</label>
+    <input type="text" id="strGenero" [(ngModel)]="nuevaPelicula.strGenero" maxlength="50" required />
+    <span *ngIf="nuevaPelicula.strGenero.length >= 50">Límite alcanzado: 50 caracteres</span>
+    <span *ngIf="nuevaPelicula.strGenero.length === 0">El género es obligatorio</span>
+  </div>
+
+  <!-- Sinopsis con validación -->
+  <div>
+    <label for="strSinapsis">Sinopsis:</label>
+    <textarea id="strSinapsis" [(ngModel)]="nuevaPelicula.strSinapsis" maxlength="500" required></textarea>
+    <span *ngIf="nuevaPelicula.strSinapsis.length >= 500">Límite alcanzado: 500 caracteres</span>
+    <span *ngIf="nuevaPelicula.strSinapsis.length === 0">La sinopsis es obligatoria</span>
+  </div>
+
+  <!-- Horario con validación -->
+  <div>
+    <label for="strHorario">Horario:</label>
+    <input type="text" id="strHorario" [(ngModel)]="nuevaPelicula.strHorario" maxlength="50" required />
+    <span *ngIf="nuevaPelicula.strHorario.length >= 50">Límite alcanzado: 50 caracteres</span>
+    <span *ngIf="nuevaPelicula.strHorario.length === 0">El horario es obligatorio</span>
+  </div>
+
+  <!-- Imagen con validación -->
+  <div>
+    <label for="strImagen">Imagen (URL):</label>
+    <input type="text" id="strImagen" [(ngModel)]="nuevaPelicula.strImagen" maxlength="255" required />
+    <span *ngIf="nuevaPelicula.strImagen.length >= 255">Límite alcanzado: 255 caracteres</span>
+    <span *ngIf="nuevaPelicula.strImagen.length === 0">La URL de la imagen es obligatoria</span>
+  </div>
+
+  <!-- Sala con validación -->
+  <div>
+    <label for="idSala">Sala:</label>
+    <input type="number" id="idSala" [(ngModel)]="nuevaPelicula.idSala" min="1" max="5" required />
+    <span *ngIf="nuevaPelicula.idSala < 1 || nuevaPelicula.idSala > 5">Debe ser un número entre 1 y 5</span>
+  </div>
+
+  <button (click)="agregarPelicula()" [disabled]="!nuevaPelicula.strNombre || !nuevaPelicula.strGenero || !nuevaPelicula.strSinapsis || !nuevaPelicula.strHorario || !nuevaPelicula.strImagen || !nuevaPelicula.idSala">Guardar</button>
+  <button (click)="mostrarFormularioAgregar = false">Cancelar</button>
+</div>
+
+<!-- Editar película -->
+<div *ngIf="mostrarFormularioEditar">
+  <h2>Editar Película</h2>
+
+  <!-- Nombre con validación -->
+  <div>
+    <label for="strNombre">Nombre (máximo 100 caracteres):</label>
+    <input type="text" id="strNombre" [(ngModel)]="peliculaEditando.strNombre" maxlength="100" required />
+    <p>{{ peliculaEditando.strNombre?.length || 0 }} / 100 caracteres</p>
+    <span *ngIf="peliculaEditando.strNombre.length === 0">El nombre es obligatorio</span>
+  </div>
+
+  <!-- Género con validación -->
+  <div>
+    <label for="strGenero">Género (máximo 50 caracteres):</label>
+    <input type="text" id="strGenero" [(ngModel)]="peliculaEditando.strGenero" maxlength="50" required />
+    <p>{{ peliculaEditando.strGenero?.length || 0 }} / 50 caracteres</p>
+    <span *ngIf="peliculaEditando.strGenero.length === 0">El género es obligatorio</span>
+  </div>
+
+  <!-- Sinopsis con validación -->
+  <div>
+    <label for="strSinapsis">Sinopsis (máximo 500 caracteres):</label>
+    <textarea id="strSinapsis" [(ngModel)]="peliculaEditando.strSinapsis" maxlength="500" required></textarea>
+    <p>{{ peliculaEditando.strSinapsis?.length || 0 }} / 500 caracteres</p>
+    <span *ngIf="peliculaEditando.strSinapsis.length === 0">La sinopsis es obligatoria</span>
+  </div>
+
+  <!-- Horario -->
+  <div>
+    <label for="strHorario">Horario:</label>
+    <input type="text" id="strHorario" [(ngModel)]="peliculaEditando.strHorario" maxlength="50" required />
+  </div>
+
+  <!-- Sala -->
+  <div>
+    <label for="idSala">Sala:</label>
+    <input type="number" id="idSala" [(ngModel)]="peliculaEditando.idSala" min="1" max="5" required />
+  </div>
+
+  <!-- Imagen -->
+  <div>
+    <label for="strImagen">Imagen (URL):</label>
+    <input type="text" id="strImagen" [(ngModel)]="peliculaEditando.strImagen" maxlength="255" required />
+  </div>
+
+  <button (click)="editarPelicula()" [disabled]="!peliculaEditando.strNombre || !peliculaEditando.strGenero || !peliculaEditando.strSinapsis || !peliculaEditando.strHorario || !peliculaEditando.strImagen || !peliculaEditando.idSala">Guardar Cambios</button>
+  <button (click)="mostrarFormularioEditar = false">Cancelar</button>
+</div>
+
+<!-- Lista de películas con opciones de edición/eliminación -->
+<ul *ngIf="!mostrarFormularioAgregar && !mostrarFormularioEditar">
+  <li *ngFor="let pelicula of cartelera">
+    <h3>{{ pelicula.strNombre }}</h3>
+    <p>{{ pelicula.strGenero }} - {{ pelicula.strHorario }}</p>
+    <img [src]="pelicula.strImagen" alt="Imagen de {{ pelicula.strNombre }}" width="200" />
+
+    <button (click)="peliculaEditando = pelicula; mostrarFormularioEditar = true">Editar</button>
+    <button (click)="eliminarPelicula(pelicula)">Eliminar</button>
+  </li>
+</ul>
+
+<!-- Botón para abrir el formulario de agregar película -->
+<button *ngIf="!mostrarFormularioAgregar && !mostrarFormularioEditar" (click)="mostrarFormularioAgregar = true">Agregar Nueva Película</button>

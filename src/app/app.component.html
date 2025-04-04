@@ -1,0 +1,30 @@
+<div class="app-container">
+  <header>
+    <h1>{{ title }}</h1>
+  </header>
+
+  <!-- Menú superior -->
+  <nav>
+    <ul>
+      <li><a routerLink="/cartelera" routerLinkActive="active">Cartelera</a></li>
+
+      <!-- Mostrar "Cerrar Sesión" solo si el usuario ha iniciado sesión -->
+      <li *ngIf="rol">
+        <a href="javascript:void(0)" (click)="cerrarSesion()">Cerrar Sesión</a>
+      </li>
+
+      <!-- Mostrar "Iniciar Sesión" si el usuario no ha iniciado sesión -->
+      <li *ngIf="!rol">
+        <a routerLink="/login" routerLinkActive="active">Iniciar Sesión</a>
+      </li>
+
+      <li *ngIf="rol === 'admin'">
+        <a routerLink="/admin" routerLinkActive="active">Acceder al Panel Admin</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Contenido de la página -->
+  <router-outlet></router-outlet>
+</div>
+  
