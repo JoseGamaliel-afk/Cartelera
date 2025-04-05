@@ -7,10 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class CineService {
 
-  // Asegúrate de que estas URL sean correctas
-  private apiUrl = 'https://cartelera-backend.onrender.com/api/movies';  // URL ajustada
-  private loginUrl = 'https://cartelera-backend.onrender.com/api/login';  // URL ajustada
-  private ftpUrl = 'https://cartelera-backend.onrender.com/api';  // URL ajustada
+  private apiUrl = 'https://cartelera-backend.onrender.com/movies';  // URL modificada
+  private loginUrl = 'https://cartelera-backend.onrender.com/login';  // URL modificada
+  private ftpUrl = 'https://cartelera-backend.onrender.com';  // URL modificada
 
   constructor(private http: HttpClient) { }
 
