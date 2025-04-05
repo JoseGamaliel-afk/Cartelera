@@ -38,7 +38,7 @@ export class PeliculaComponent implements OnInit {
       console.error('Acceso denegado:', err);
       this.limpiarSesion();
       // Redirigimos al usuario a la cartelera si no está logeado o no es admin
-      this.router.navigate(['/cartelera']);
+      this.router.navigate(['']);
     }
   }
 
