@@ -5,10 +5,10 @@
   "projects": {
     "Cartelera": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -39,16 +39,16 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kb",  
-                  "maximumError": "6kb"    
+                  "maximumWarning": "4kb",
+                  "maximumError": "6kb"
                 }
               ],
               "outputHashing": "all",
-              "buildOptimizer": true,  
-              "optimization": true,    
-              "sourceMap": false,      
-              "vendorChunk": false,    
-              "extractLicenses": true 
+              "buildOptimizer": true,
+              "optimization": true,
+              "sourceMap": false,
+              "vendorChunk": false,
+              "extractLicenses": true
             },
             "development": {
               "buildOptimizer": false,
