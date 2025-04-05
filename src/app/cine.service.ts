@@ -7,81 +7,83 @@ import { Observable } from 'rxjs';
 })
 export class CineService {
 
-  private apiUrl = 'https://cartelera-backend.onrender.com/movies';  // URL modificada
-  private loginUrl = 'https://cartelera-backend.onrender.com/login';  // URL modificada
-  private ftpUrl = 'https://cartelera-backend.onrender.com';  // URL modificada
+  private baseUrl = 'https://cartelera-backend.onrender.com';
+  private apiUrl = `${this.baseUrl}/movies`;
+  private loginUrl = `${this.baseUrl}/login`;
 
   constructor(private http: HttpClient) { }
 
+  // Obtener token desde localStorage
   private getAuthToken(): string {
     return localStorage.getItem('auth_token') || '';
   }
 
+  // Crear headers con autorización
   private createAuthHeaders(): HttpHeaders {
     return new HttpHeaders({
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'Content-Type': 'application/json'
     });
   }
 
-  // === Películas ===
-
+  // GET: cartelera
   getCartelera(): Observable<any> {
     return this.http.get<any>(this.apiUrl, { headers: this.createAuthHeaders() });
   }
 
+  // GET: detalles de una película
   getPeliculaDetalles(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() });
   }
 
+  // POST: agregar película
   agregarPelicula(pelicula: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, pelicula, { headers: this.createAuthHeaders() });
   }
 
+  // PUT: editar película
   editarPelicula(id: string, pelicula: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, pelicula, { headers: this.createAuthHeaders() });
   }
 
+  // DELETE: eliminar película
   eliminarPelicula(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() });
   }
 
-  // === FTP ===
-
+  // POST: subir archivo
   uploadFile(file: FormData): Observable<any> {
-    return this.http.post(`${this.ftpUrl}/upload`, file, { headers: this.createAuthHeaders() });
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getAuthToken()}`
+      // NO incluir Content-Type con FormData
+    });
+    return this.http.post(`${this.baseUrl}/upload`, file, { headers });
   }
 
+  // GET: listar archivos
   listFiles(): Observable<any> {
-    return this.http.get(`${this.ftpUrl}/list`, { headers: this.createAuthHeaders() });
+    return this.http.get(`${this.baseUrl}/list`, { headers: this.createAuthHeaders() });
   }
 
+  // DELETE: eliminar archivo
   deleteFile(fileName: string): Observable<any> {
-    const headers = this.createAuthHeaders().set('Content-Type', 'application/json');
-    return this.http.request('delete', `${this.ftpUrl}/delete`, {
-      headers,
-      body: { fileName }
+    return this.http.request('delete', `${this.baseUrl}/delete`, {
+      body: { fileName },
+      headers: this.createAuthHeaders()
     });
   }
 
-  // Si tus imágenes se sirven en una ruta tipo: http://localhost:3000/files/nombre.jpg
-  getFileUrl(fileName: string): string {
-    return `${this.ftpUrl}/files/${encodeURIComponent(fileName)}`;
-  }
-
-  // === Email ===
-
+  // POST: enviar correo
   sendEmail(emailData: { to: string, subject: string, text: string }): Observable<any> {
-    return this.http.post(`${this.ftpUrl}/enviar`, emailData, { headers: this.createAuthHeaders() });
+    return this.http.post(`${this.baseUrl}/enviar`, emailData, { headers: this.createAuthHeaders() });
   }
 
-  // === Login ===
-
+  // POST: login
   login(strNombre: string, strPwd: string): Observable<any> {
     return this.http.post(`${this.loginUrl}`, { strNombre, strPwd });
   }
 
-  // === Edición de Películas ===
-
+  // --- Lógica local para edición de película ---
   peliculaEnEdicion: any = null;
 
   empezarEdicionPelicula(pelicula: any): void {
@@ -89,7 +91,7 @@ export class CineService {
   }
 
   guardarCambiosPelicula(): void {
-    if (this.peliculaEnEdicion) {
+    if (this.peliculaEnEdicion && this.peliculaEnEdicion.id) {
       this.editarPelicula(this.peliculaEnEdicion.id, this.peliculaEnEdicion).subscribe(
         (response) => {
           console.log('Película actualizada:', response);
