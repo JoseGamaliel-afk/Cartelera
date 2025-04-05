@@ -22,7 +22,7 @@ export class AppComponent {
     // Verificar si el token fue eliminado correctamente
     if (!localStorage.getItem('auth_token')) {
       // Redirigir a la página de login después de cerrar sesión
-      this.router.navigate(['/login']);
+      this.router.navigate(['/Cartelera']);
     } else {
       // Si por alguna razón el token no fue eliminado, redirigir a la página de error
       this.router.navigate(['/error']);  // O a cualquier página de error que prefieras
