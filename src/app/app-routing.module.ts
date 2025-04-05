@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: '', component: CarteleraComponent },
 
   // Ruta para login
-  { path: 'login', component: AuthComponent },
+  { path: 'login', component: AuthComponent }, 
 
   // Ruta para administración
   { path: 'admin', component: PeliculaComponent },
