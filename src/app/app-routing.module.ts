@@ -4,17 +4,11 @@ import { CarteleraComponent } from './cartelera.component';
 import { AuthComponent } from './auth.component';
 import { PeliculaComponent } from './pelicula.component';
 
+
 const routes: Routes = [
-  // Cargar directamente Cartelera en la raíz
   { path: '', component: CarteleraComponent },
-
-  // Ruta para login
-  { path: 'login', component: AuthComponent }, 
-
-  // Ruta para administración
+  { path: 'login', component: AuthComponent },
   { path: 'admin', component: PeliculaComponent },
-
-  // Ruta wildcard para manejar URLs no definidas
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

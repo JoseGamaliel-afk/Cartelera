@@ -19,8 +19,14 @@ export class AppComponent {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_role');  // Limpiamos el rol al cerrar sesión
 
-    // Redirigir a la página principal después de cerrar sesión
-    this.router.navigate(['/cartelera']);
+    // Verificar si el token fue eliminado correctamente
+    if (!localStorage.getItem('auth_token')) {
+      // Redirigir a la página de login después de cerrar sesión
+      this.router.navigate(['/login']);
+    } else {
+      // Si por alguna razón el token no fue eliminado, redirigir a la página de error
+      this.router.navigate(['/error']);  // O a cualquier página de error que prefieras
+    }
   }
 
   constructor(private router: Router) {}

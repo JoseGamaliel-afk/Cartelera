@@ -1,3 +1,11 @@
-routes:
-  - src: /.*  
-    dest: /index.html
+services:
+  - type: web
+    name: my-angular-app
+    env: node
+    buildCommand: 'npm run build'
+    startCommand: 'npm run start'
+    routes:
+      - path: /login
+        redirectTo: /index.html
+      - path: /*
+        redirectTo: /index.html
