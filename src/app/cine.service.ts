@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,29 +27,40 @@ export class CineService {
     });
   }
 
+  // Manejo de errores
+  private handleError(error: any): Observable<never> {
+    console.error('Ocurrió un error:', error);
+    return throwError(() => new Error(error.message || 'Error desconocido'));
+  }
+
   // GET: cartelera
   getCartelera(): Observable<any> {
-    return this.http.get<any>(this.apiUrl, { headers: this.createAuthHeaders() });
+    return this.http.get<any>(this.apiUrl, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // GET: detalles de una película
   getPeliculaDetalles(id: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // POST: agregar película
   agregarPelicula(pelicula: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, pelicula, { headers: this.createAuthHeaders() });
+    return this.http.post<any>(this.apiUrl, pelicula, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // PUT: editar película
   editarPelicula(id: string, pelicula: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, pelicula, { headers: this.createAuthHeaders() });
+    return this.http.put<any>(`${this.apiUrl}/${id}`, pelicula, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // DELETE: eliminar película
   eliminarPelicula(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() });
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // POST: subir archivo
@@ -57,12 +69,14 @@ export class CineService {
       'Authorization': `Bearer ${this.getAuthToken()}`
       // NO incluir Content-Type con FormData
     });
-    return this.http.post(`${this.baseUrl}/upload`, file, { headers });
+    return this.http.post(`${this.baseUrl}/upload`, file, { headers })
+      .pipe(catchError(this.handleError));
   }
 
   // GET: listar archivos
   listFiles(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/list`, { headers: this.createAuthHeaders() });
+    return this.http.get(`${this.baseUrl}/list`, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // DELETE: eliminar archivo
@@ -70,17 +84,19 @@ export class CineService {
     return this.http.request('delete', `${this.baseUrl}/delete`, {
       body: { fileName },
       headers: this.createAuthHeaders()
-    });
+    }).pipe(catchError(this.handleError));
   }
 
   // POST: enviar correo
   sendEmail(emailData: { to: string, subject: string, text: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/enviar`, emailData, { headers: this.createAuthHeaders() });
+    return this.http.post(`${this.baseUrl}/enviar`, emailData, { headers: this.createAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
 
   // POST: login
   login(strNombre: string, strPwd: string): Observable<any> {
-    return this.http.post(`${this.loginUrl}`, { strNombre, strPwd });
+    return this.http.post(`${this.loginUrl}`, { strNombre, strPwd })
+      .pipe(catchError(this.handleError));
   }
 
   // --- Lógica local para edición de película ---
