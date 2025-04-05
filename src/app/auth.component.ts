@@ -16,30 +16,33 @@ export class AuthComponent {
   constructor(private cineService: CineService, private router: Router) {}
 
   iniciarSesion(): void {
+    // Validación de campos vacíos
     if (!this.credenciales.strNombre || !this.credenciales.strPwd) {
       this.errorLogin = 'Debes ingresar usuario y contraseña';
       return;
     }
 
+    // Realizar el login usando el servicio
     this.cineService.login(this.credenciales.strNombre, this.credenciales.strPwd).subscribe({
       next: (respuesta) => {
         this.usuario = respuesta;
         this.rol = respuesta.rol;
-        this.errorLogin = '';
-        localStorage.setItem('auth_token', respuesta.token);
-        localStorage.setItem('user_role', respuesta.rol);  // Guardamos el rol del usuario
+        this.errorLogin = ''; // Limpiar errores previos
+        localStorage.setItem('auth_token', respuesta.token); // Guardamos el token de sesión
+        localStorage.setItem('user_role', respuesta.rol); // Guardamos el rol del usuario
 
+        // Mensaje de bienvenida
         alert(`Bienvenido ${respuesta.strNombre} (Rol: ${respuesta.rol})`);
 
-        // Redirige según el rol del usuario
+        // Redirigir según el rol del usuario
         if (respuesta.rol === 'admin') {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/admin']); // Navegar a la ruta del panel de administración si es admin
         } else {
-          this.router.navigate(['/cartelera']);
+          this.router.navigate(['/cartelera']); // Si no es admin, llevar a la cartelera
         }
       },
       error: () => {
-        this.errorLogin = 'Usuario o contraseña incorrectos';
+        this.errorLogin = 'Usuario o contraseña incorrectos'; // Error si las credenciales son incorrectas
       }
     });
   }
@@ -47,13 +50,18 @@ export class AuthComponent {
   cerrarSesion(): void {
     this.usuario = null;
     this.rol = '';
-    this.credenciales = { strNombre: '', strPwd: '' };
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_role');  // Limpiamos el rol al cerrar sesión
-    this.router.navigate(['/cartelera']);
+    this.credenciales = { strNombre: '', strPwd: '' }; // Limpiar las credenciales
+    localStorage.removeItem('auth_token'); // Limpiar el token de sesión
+    localStorage.removeItem('user_role'); // Limpiar el rol del usuario
+    this.router.navigate(['/cartelera']); // Redirigir a la cartelera después de cerrar sesión
   }
 
   navegarPanelAdmin(): void {
-    this.router.navigate(['/admin']);  // Método que navega al panel admin
+    // Verificar si el usuario es admin antes de navegar al panel
+    if (this.rol === 'admin') {
+      this.router.navigate(['/admin']); // Navegar al panel de administración
+    } else {
+      this.errorLogin = 'No tienes acceso al panel de administración'; // Mensaje de error si no es admin
+    }
   }
 }
