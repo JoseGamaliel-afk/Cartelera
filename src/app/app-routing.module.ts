@@ -5,20 +5,17 @@ import { AuthComponent } from './auth.component';
 import { PeliculaComponent } from './pelicula.component';
 
 const routes: Routes = [
-  // Redirige la raíz al componente 'cartelera' por defecto
-  { path: '', redirectTo: '/cartelera', pathMatch: 'full' },
-  
-  // Ruta para mostrar el componente Cartelera
-  { path: 'cartelera', component: CarteleraComponent },
-  
-  // Ruta para el login (puede ser pública para que los usuarios accedan)
+  // Cargar directamente Cartelera en la raíz
+  { path: '', component: CarteleraComponent },
+
+  // Ruta para login
   { path: 'login', component: AuthComponent },
-  
-  // Ruta para el panel de administración (requiere autenticación, por ejemplo)
+
+  // Ruta para administración
   { path: 'admin', component: PeliculaComponent },
-  
-  // Ruta wildcard (por si hay rutas no definidas)
-  { path: '**', redirectTo: '/cartelera', pathMatch: 'full' }
+
+  // Ruta wildcard para manejar URLs no definidas
+  { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 
 @NgModule({
