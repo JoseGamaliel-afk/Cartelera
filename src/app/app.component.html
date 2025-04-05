@@ -6,6 +6,7 @@
   <!-- Menú superior -->
   <nav>
     <ul>
+      <!-- Enlace a la Cartelera -->
       <li><a routerLink="/cartelera" routerLinkActive="active">Cartelera</a></li>
 
       <!-- Mostrar "Cerrar Sesión" solo si el usuario ha iniciado sesión -->
@@ -18,6 +19,7 @@
         <a routerLink="/login" routerLinkActive="active">Iniciar Sesión</a>
       </li>
 
+      <!-- Mostrar "Acceder al Panel Admin" solo si el rol es admin -->
       <li *ngIf="rol === 'admin'">
         <a routerLink="/admin" routerLinkActive="active">Acceder al Panel Admin</a>
       </li>
@@ -27,4 +29,3 @@
   <!-- Contenido de la página -->
   <router-outlet></router-outlet>
 </div>
-  

@@ -4,12 +4,12 @@ import { CarteleraComponent } from './cartelera.component';
 import { AuthComponent } from './auth.component';
 import { PeliculaComponent } from './pelicula.component';
 
-
 const routes: Routes = [
-  { path: '', component: CarteleraComponent },
-  { path: '', component: AuthComponent },
-  { path: '', component: PeliculaComponent },
-  { path: '**', redirectTo: '', pathMatch: 'full' }
+  { path: '', redirectTo: '/cartelera', pathMatch: 'full' },
+  { path: 'cartelera', component: CarteleraComponent },
+  { path: 'login', component: AuthComponent },
+  { path: 'admin', component: PeliculaComponent },
+  { path: '**', redirectTo: '/cartelera', pathMatch: 'full' }
 ];
 
 @NgModule({

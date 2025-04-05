@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,8 +6,20 @@ import { Router } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'CineApp';
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    // Comprobar si hay un token de autenticación al iniciar la app
+    const token = localStorage.getItem('auth_token');
+
+    // Si no hay token, redirigir a la cartelera
+    if (!token) {
+      this.router.navigate(['/cartelera']);
+    }
+  }
 
   // Obtiene el rol del usuario desde localStorage
   get rol(): string {
@@ -28,6 +40,4 @@ export class AppComponent {
       this.router.navigate(['/error']);  // O a cualquier página de error que prefieras
     }
   }
-
-  constructor(private router: Router) {}
 }
