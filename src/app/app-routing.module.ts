@@ -7,10 +7,13 @@ import { PeliculaComponent } from './pelicula.component';
 
 const routes: Routes = [
   { path: '', component: CarteleraComponent },
-  { path: 'login', component: CarteleraComponent },
-  { path: 'admin', component: CarteleraComponent },
-  { path: '**', redirectTo: '', pathMatch: 'full' }
+  { path: 'login', component: AuthComponent },
+  { path: 'admin', component: PeliculaComponent },
+  { path: '**', redirectTo: '', pathMatch: 'full' },  
+  { path: 'login/**', redirectTo: '', pathMatch: 'full' },  
+  { path: 'admin/**', redirectTo: '', pathMatch: 'full' }  
 ];
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
