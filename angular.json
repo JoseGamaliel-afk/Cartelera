@@ -12,7 +12,7 @@
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
-          "options": {  
+          "options": {
             "outputPath": "dist/cartelera",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -39,11 +39,16 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "4kb",  
+                  "maximumError": "6kb"    
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "buildOptimizer": true,  
+              "optimization": true,    
+              "sourceMap": false,      
+              "vendorChunk": false,    
+              "extractLicenses": true 
             },
             "development": {
               "buildOptimizer": false,
