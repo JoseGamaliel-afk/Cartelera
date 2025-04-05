@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: 'cartelera', component: CarteleraComponent },
   { path: 'login', component: AuthComponent },
   { path: 'admin', component: PeliculaComponent },
-  { path: '**', redirectTo: '/cartelera', pathMatch: 'full' }
+  { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 
 @NgModule({
