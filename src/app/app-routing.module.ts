@@ -4,11 +4,11 @@ import { CarteleraComponent } from './cartelera.component';
 import { AuthComponent } from './auth.component';
 import { PeliculaComponent } from './pelicula.component';
 
+
 const routes: Routes = [
-  { path: '', redirectTo: '/cartelera', pathMatch: 'full' },
-  { path: 'cartelera', component: CarteleraComponent },
-  { path: 'login', component: AuthComponent },
-  { path: 'admin', component: PeliculaComponent },
+  { path: '', component: CarteleraComponent },
+  { path: 'login', component: CarteleraComponent },
+  { path: 'admin', component: CarteleraComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 
