@@ -50,7 +50,8 @@
               "sourceMap": false,
               "vendorChunk": false,
               "extractLicenses": true,
-              "baseHref": "/"
+              "baseHref": "/cartelera/"
+
             },
             "development": {
               "buildOptimizer": false,
