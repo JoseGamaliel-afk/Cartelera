@@ -7,8 +7,8 @@ import { PeliculaComponent } from './pelicula.component';
 
 const routes: Routes = [
   { path: '', component: CarteleraComponent },
-  { path: 'login', component: AuthComponent },
-  { path: 'admin', component: PeliculaComponent },
+  { path: '', component: AuthComponent },
+  { path: '', component: PeliculaComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 
