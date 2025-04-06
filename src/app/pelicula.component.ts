@@ -110,68 +110,75 @@ export class PeliculaComponent implements OnInit {
   // Inicializar película
   private inicializarPelicula() {
     return {
-      id: null,
-      strNombre: '',
-      strGenero: '',
-      strSinapsis: '',
-      strHorario: '',
-      idSala: null,
-      strImagen: ''
+      strNombre: '',       // << Nombre exacto para backend
+      strGenero: '',       // << Nombre exacto
+      strSinapsis: '',     // << Nombre exacto
+      strHorario: '',      // << Nombre exacto
+      idSala: 1,          // << Asegurar que sea número (no null)
+      strImagen: ''        // << Nombre exacto
     };
   }
 
   // Validación de película
-  private validarPelicula(pelicula: any): boolean {
-    const validString = (str: string) => !/<.*?>/.test(str.trim());
-    
-    const trimStart = (str: string) => str.replace(/^\s+/g, '');
+  // Validación de película
+private validarPelicula(pelicula: any): boolean {
+  const validString = (str: string) => !/<.*?>/.test(str.trim());
+  
+  const trimStart = (str: string) => str.replace(/^\s+/g, '');
 
-    pelicula.strNombre = trimStart(pelicula.strNombre.trim());
-    pelicula.strGenero = trimStart(pelicula.strGenero.trim());
-    pelicula.strSinapsis = trimStart(pelicula.strSinapsis.trim());
-    pelicula.strHorario = trimStart(pelicula.strHorario.trim());
-    pelicula.strImagen = trimStart(pelicula.strImagen.trim());
+  pelicula.strNombre = trimStart(pelicula.strNombre.trim());
+  pelicula.strGenero = trimStart(pelicula.strGenero.trim());
+  pelicula.strSinapsis = trimStart(pelicula.strSinapsis.trim());
+  pelicula.strHorario = trimStart(pelicula.strHorario.trim());
+  pelicula.strImagen = trimStart(pelicula.strImagen.trim());
 
-    if (
-      !pelicula.strNombre ||
-      !pelicula.strGenero ||
-      !pelicula.strSinapsis ||
-      !pelicula.strHorario ||
-      !pelicula.strImagen ||
-      !validString(pelicula.strNombre) ||
-      !validString(pelicula.strGenero) ||
-      !validString(pelicula.strSinapsis)
-    ) {
-      alert('Por favor, complete todos los campos correctamente, sin espacios al principio.');
-      return false;
-    }
-
-    if (pelicula.idSala < 1 || pelicula.idSala > 5) {
-      alert('El ID de la sala debe ser un valor entre 1 y 5.');
-      return false;
-    }
-
-    const limites = {
-      strNombre: 100,
-      strGenero: 50,
-      strSinapsis: 500,
-      strHorario: 50,
-      strImagen: 255
-    };
-
-    if (
-      pelicula.strNombre.length > limites.strNombre ||
-      pelicula.strGenero.length > limites.strGenero ||
-      pelicula.strSinapsis.length > limites.strSinapsis ||
-      pelicula.strHorario.length > limites.strHorario ||
-      pelicula.strImagen.length > limites.strImagen
-    ) {
-      alert('Uno o más campos han alcanzado el límite de caracteres permitido.');
-      return false;
-    }
-
-    return true;
+  if (
+    !pelicula.strNombre ||
+    !pelicula.strGenero ||
+    !pelicula.strSinapsis ||
+    !pelicula.strHorario ||
+    !pelicula.strImagen ||
+    !validString(pelicula.strNombre) ||
+    !validString(pelicula.strGenero) ||
+    !validString(pelicula.strSinapsis)
+  ) {
+    alert('Por favor, complete todos los campos correctamente, sin espacios al principio.');
+    return false;
   }
+
+  // ✅ Validación extra agregada: que idSala sea número válido
+  if (isNaN(pelicula.idSala)) {
+    alert('El ID de sala debe ser un número');
+    return false;
+  }
+
+  if (pelicula.idSala < 1 || pelicula.idSala > 5) {
+    alert('El ID de la sala debe ser un valor entre 1 y 5.');
+    return false;
+  }
+
+  const limites = {
+    strNombre: 100,
+    strGenero: 50,
+    strSinapsis: 500,
+    strHorario: 50,
+    strImagen: 255
+  };
+
+  if (
+    pelicula.strNombre.length > limites.strNombre ||
+    pelicula.strGenero.length > limites.strGenero ||
+    pelicula.strSinapsis.length > limites.strSinapsis ||
+    pelicula.strHorario.length > limites.strHorario ||
+    pelicula.strImagen.length > limites.strImagen
+  ) {
+    alert('Uno o más campos han alcanzado el límite de caracteres permitido.');
+    return false;
+  }
+
+  return true;
+}
+
 
   // Manejo de errores
   private manejarError(error: any, accion: string): void {
