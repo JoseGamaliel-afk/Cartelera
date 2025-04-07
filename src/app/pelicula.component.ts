@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SecurityContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { CineService } from './cine.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-pelicula',
@@ -16,37 +17,19 @@ export class PeliculaComponent implements OnInit {
 
   constructor(
     private cineService: CineService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
-    this.validarSesion();
+    
     this.obtenerCartelera();
   }
 
-  // Validación de sesión
-  validarSesion(): void {
-    try {
-      const token = localStorage.getItem('auth_token');
-      const rol = localStorage.getItem('user_role');
+  
 
-      if (!token || rol !== 'admin') {
-        throw new Error('No autenticado o no tiene permisos de administrador');
-      }
-    } catch (err) {
-      console.error('Acceso denegado:', err);
-      this.limpiarSesion();
-      this.router.navigate(['']);
-    }
-  }
+  
 
-  // Limpiar sesión
-  limpiarSesion(): void {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_role');
-  }
-
-  // Obtener cartelera
   obtenerCartelera(): void {
     this.cineService.getCartelera().subscribe({
       next: (data) => this.cartelera = data,
@@ -54,13 +37,14 @@ export class PeliculaComponent implements OnInit {
     });
   }
 
-  // Agregar película
   agregarPelicula(): void {
-    if (!this.validarPelicula(this.nuevaPelicula)) {
+    const peliculaSanitizada = this.sanitizarDatosPelicula(this.nuevaPelicula);
+    
+    if (!this.validarPelicula(peliculaSanitizada)) {
       return;
     }
 
-    this.cineService.agregarPelicula(this.nuevaPelicula).subscribe({
+    this.cineService.agregarPelicula(peliculaSanitizada).subscribe({
       next: () => {
         alert('Película agregada correctamente');
         this.obtenerCartelera();
@@ -71,13 +55,14 @@ export class PeliculaComponent implements OnInit {
     });
   }
 
-  // Editar película
   editarPelicula(): void {
-    if (!this.peliculaEditando?.id || !this.validarPelicula(this.peliculaEditando)) {
+    const peliculaSanitizada = this.sanitizarDatosPelicula(this.peliculaEditando);
+    
+    if (!peliculaSanitizada?.id || !this.validarPelicula(peliculaSanitizada)) {
       return;
     }
 
-    this.cineService.editarPelicula(this.peliculaEditando.id, this.peliculaEditando).subscribe({
+    this.cineService.editarPelicula(peliculaSanitizada.id, peliculaSanitizada).subscribe({
       next: () => {
         alert('Película editada correctamente');
         this.obtenerCartelera();
@@ -87,7 +72,6 @@ export class PeliculaComponent implements OnInit {
     });
   }
 
-  // Eliminar película
   eliminarPelicula(pelicula: any): void {
     if (!pelicula?.id || !confirm('¿Estás seguro de eliminar esta película?')) return;
 
@@ -100,30 +84,25 @@ export class PeliculaComponent implements OnInit {
     });
   }
 
-  // Mostrar formulario de agregar
   mostrarFormularioAgregarPelicula(): void {
     this.mostrarFormularioAgregar = true;
     this.mostrarFormularioEditar = false;
   }
 
-  // Preparar edición
   prepararEdicion(pelicula: any): void {
     this.peliculaEditando = { ...pelicula };
     this.mostrarFormularioEditar = true;
     this.mostrarFormularioAgregar = false;
   }
 
-  // Cancelar edición
   cancelarEdicion(): void {
     this.mostrarFormularioEditar = false;
     this.mostrarFormularioAgregar = false;
   }
 
-  // Validación para el template
   formularioValido(pelicula: any): boolean {
     if (!pelicula) return false;
     
-    // Validación básica de campos requeridos
     const camposRequeridos = [
       'strNombre',
       'strGenero',
@@ -137,16 +116,13 @@ export class PeliculaComponent implements OnInit {
       if (!pelicula[campo]) return false;
     }
     
-    // Validación de sala
     if (pelicula.idSala < 1 || pelicula.idSala > 5) return false;
     
-    // Validación de URL de trailer si existe
     if (pelicula.strTrailerURL && !this.validarUrl(pelicula.strTrailerURL)) return false;
     
     return true;
   }
 
-  // Validación de URL genérica
   validarUrl(url: string): boolean {
     if (!url) return true;
     
@@ -154,13 +130,11 @@ export class PeliculaComponent implements OnInit {
       new URL(url);
       return true;
     } catch (e) {
-      // Patrón alternativo para navegadores antiguos
       const pattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
       return pattern.test(url);
     }
   }
 
-  // Inicializar objeto película
   private inicializarPelicula() {
     return {
       strNombre: '',
@@ -173,35 +147,59 @@ export class PeliculaComponent implements OnInit {
     };
   }
 
-  // Validación completa de película
+  private sanitizarDatosPelicula(pelicula: any): any {
+    return {
+      ...pelicula,
+      id: pelicula.id ? Number(pelicula.id) : null,
+      strNombre: this.sanitizarTexto(pelicula.strNombre),
+      strGenero: this.sanitizarTexto(pelicula.strGenero),
+      strSinapsis: this.sanitizarTexto(pelicula.strSinapsis),
+      strHorario: this.sanitizarTexto(pelicula.strHorario),
+      strImagen: this.sanitizarUrl(pelicula.strImagen),
+      strTrailerURL: pelicula.strTrailerURL ? this.sanitizarUrl(pelicula.strTrailerURL) : null,
+      idSala: Number(pelicula.idSala)
+    };
+  }
+
+  private sanitizarTexto(texto: string): string {
+    if (!texto) return '';
+    return texto.replace(/<[^>]*>/g, '').replace(/[<>"'`]/g, '').trim();
+  }
+
+  private sanitizarUrl(url: string): string {
+    if (!url) return '';
+    const safeUrl = this.sanitizer.sanitize(SecurityContext.URL, url) || '';
+    return safeUrl.replace(/javascript:/gi, '').replace(/[<>"'`]/g, '');
+  }
+
   private validarPelicula(pelicula: any): boolean {
-    const validString = (str: string) => !/<.*?>/.test(str.trim());
     const trimStart = (str: string) => str.replace(/^\s+/g, '');
 
-    // Limpiar y validar campos de texto
-    pelicula.strNombre = trimStart(pelicula.strNombre?.trim() || '');
-    pelicula.strGenero = trimStart(pelicula.strGenero?.trim() || '');
-    pelicula.strSinapsis = trimStart(pelicula.strSinapsis?.trim() || '');
-    pelicula.strHorario = trimStart(pelicula.strHorario?.trim() || '');
-    pelicula.strImagen = trimStart(pelicula.strImagen?.trim() || '');
-    pelicula.strTrailerURL = trimStart(pelicula.strTrailerURL?.trim() || '');
-
-    // Validar campos requeridos
     if (
       !pelicula.strNombre ||
       !pelicula.strGenero ||
       !pelicula.strSinapsis ||
       !pelicula.strHorario ||
-      !pelicula.strImagen ||
-      !validString(pelicula.strNombre) ||
-      !validString(pelicula.strGenero) ||
-      !validString(pelicula.strSinapsis)
+      !pelicula.strImagen
     ) {
-      alert('Por favor, complete todos los campos obligatorios correctamente, sin espacios al principio.');
+      alert('Por favor, complete todos los campos correctamente.');
       return false;
     }
 
-    // Validar sala
+    const tieneCodigoPeligroso = [
+      pelicula.strNombre,
+      pelicula.strGenero,
+      pelicula.strSinapsis,
+      pelicula.strHorario,
+      pelicula.strImagen,
+      pelicula.strTrailerURL
+    ].some(campo => campo && /[<>"'`]|javascript:/gi.test(campo));
+
+    if (tieneCodigoPeligroso) {
+      alert('Los campos contienen caracteres no permitidos.');
+      return false;
+    }
+
     if (isNaN(pelicula.idSala)) {
       alert('El ID de sala debe ser un número');
       return false;
@@ -212,13 +210,11 @@ export class PeliculaComponent implements OnInit {
       return false;
     }
 
-    // Validar URL de trailer (ahora acepta cualquier URL válida)
     if (pelicula.strTrailerURL && !this.validarUrl(pelicula.strTrailerURL)) {
-      alert('La URL proporcionada no es válida. Por favor ingrese una URL válida.');
+      alert('La URL proporcionada no es válida.');
       return false;
     }
 
-    // Validar límites de caracteres
     const limites = {
       strNombre: 100,
       strGenero: 50,
@@ -238,13 +234,12 @@ export class PeliculaComponent implements OnInit {
     return true;
   }
 
-  // Manejo de errores
   private manejarError(error: any, accion: string): void {
     console.error(`Error al ${accion}:`, error);
 
     if (error.status === 401 || error.status === 403) {
       alert('Tu sesión ha expirado. Inicia sesión nuevamente.');
-      this.limpiarSesion();
+      
       this.router.navigate(['/login']);
     } else if (error.status === 500) {
       alert(`Hubo un problema interno al ${accion}. Por favor, inténtalo más tarde.`);
@@ -252,4 +247,12 @@ export class PeliculaComponent implements OnInit {
       alert(`Ocurrió un error al ${accion}.`);
     }
   }
+  escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+  }
+
+  
+  
 }
