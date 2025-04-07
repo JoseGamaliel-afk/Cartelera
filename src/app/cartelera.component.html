@@ -1,27 +1,40 @@
 <!-- Indicador de carga -->
 <div *ngIf="loading" class="loading">
-    <p>Cargando cartelera...</p>
-  </div>
-  
-  <!-- Cartelera cuando no está en carga -->
-  <div *ngIf="!loading" class="cartelera-container">
-    <h2>Cartelera</h2>
-    <div *ngIf="mostrarLista" class="cartelera">
-      <div *ngFor="let pelicula of cartelera" class="pelicula" (click)="verDetallesPelicula(pelicula)">
-        <img [src]="pelicula.strImagen" alt="Imagen de {{ pelicula.strNombre }}" />
-        <h3>{{ pelicula.strNombre }}</h3>
-        <button class="btn-edit">Ver detalles</button>
-      </div>
-    </div>
-  
-    <!-- Detalles de la película seleccionada -->
-    <div *ngIf="!mostrarLista && peliculaSeleccionada" class="detalle">
-      <h3>{{ peliculaSeleccionada.strNombre }}</h3>
-      <img [src]="peliculaSeleccionada.strImagen" alt="Imagen de {{ peliculaSeleccionada.strNombre }}" />
-      <p><strong>Género:</strong> {{ peliculaSeleccionada.strGenero }}</p>
-      <p><strong>Sinopsis:</strong> {{ peliculaSeleccionada.strSinapsis }}</p>
-      <p><strong>Horario:</strong> {{ peliculaSeleccionada.strHorario }}</p>
-      <button (click)="irACartelera()" class="btn-back">Volver a la cartelera</button>
+  <p>Cargando cartelera...</p>
+</div>
+
+<!-- Cartelera cuando no está en carga -->
+<div *ngIf="!loading" class="cartelera-container">
+  <h2>Cartelera</h2>
+  <div *ngIf="mostrarLista" class="cartelera">
+    <div *ngFor="let pelicula of cartelera" class="pelicula" (click)="verDetallesPelicula(pelicula)">
+      <img [src]="pelicula.strImagen" alt="Imagen de {{ pelicula.strNombre }}" />
+      <h3>{{ pelicula.strNombre }}</h3>
+      <button class="btn-edit">Ver detalles</button>
     </div>
   </div>
-  
+
+  <!-- Detalles de la película seleccionada -->
+  <div *ngIf="!mostrarLista && peliculaSeleccionada" class="detalle">
+    <h3>{{ peliculaSeleccionada.strNombre }}</h3>
+    <img [src]="peliculaSeleccionada.strImagen" alt="Imagen de {{ peliculaSeleccionada.strNombre }}" />
+    
+    <!-- Contenedor del trailer -->
+    <div *ngIf="peliculaSeleccionada.strTrailerURL" class="trailer-container">
+      <h4>Tráiler</h4>
+      <iframe 
+        width="560" 
+        height="315" 
+        [src]="getSafeYoutubeUrl(peliculaSeleccionada.strTrailerURL)" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+    
+    <p><strong>Género:</strong> {{ peliculaSeleccionada.strGenero }}</p>
+    <p><strong>Sinopsis:</strong> {{ peliculaSeleccionada.strSinapsis }}</p>
+    <p><strong>Horario:</strong> {{ peliculaSeleccionada.strHorario }}</p>
+    <button (click)="irACartelera()" class="btn-back">Volver a la cartelera</button>
+  </div>
+</div>

@@ -24,28 +24,26 @@ export class PeliculaComponent implements OnInit {
     this.obtenerCartelera();
   }
 
-  // Validación de sesión en el inicio
+  // Validación de sesión
   validarSesion(): void {
     try {
       const token = localStorage.getItem('auth_token');
-      const rol = localStorage.getItem('user_role');  // Obtenemos el rol del usuario desde localStorage
+      const rol = localStorage.getItem('user_role');
 
-      // Si no hay token o el rol no es admin, redirigimos a la cartelera
       if (!token || rol !== 'admin') {
         throw new Error('No autenticado o no tiene permisos de administrador');
       }
     } catch (err) {
       console.error('Acceso denegado:', err);
       this.limpiarSesion();
-      // Redirigimos al usuario a la cartelera si no está logeado o no es admin
       this.router.navigate(['']);
     }
   }
 
-  // Limpiar la sesión
+  // Limpiar sesión
   limpiarSesion(): void {
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_role');  // Limpiamos también el rol del usuario
+    localStorage.removeItem('user_role');
   }
 
   // Obtener cartelera
@@ -59,7 +57,6 @@ export class PeliculaComponent implements OnInit {
   // Agregar película
   agregarPelicula(): void {
     if (!this.validarPelicula(this.nuevaPelicula)) {
-      alert('Por favor, complete todos los campos correctamente');
       return;
     }
 
@@ -76,7 +73,9 @@ export class PeliculaComponent implements OnInit {
 
   // Editar película
   editarPelicula(): void {
-    if (!this.peliculaEditando?.id) return;
+    if (!this.peliculaEditando?.id || !this.validarPelicula(this.peliculaEditando)) {
+      return;
+    }
 
     this.cineService.editarPelicula(this.peliculaEditando.id, this.peliculaEditando).subscribe({
       next: () => {
@@ -101,84 +100,142 @@ export class PeliculaComponent implements OnInit {
     });
   }
 
-  // Mostrar formulario para agregar película
+  // Mostrar formulario de agregar
   mostrarFormularioAgregarPelicula(): void {
     this.mostrarFormularioAgregar = true;
     this.mostrarFormularioEditar = false;
   }
 
-  // Inicializar película
+  // Preparar edición
+  prepararEdicion(pelicula: any): void {
+    this.peliculaEditando = { ...pelicula };
+    this.mostrarFormularioEditar = true;
+    this.mostrarFormularioAgregar = false;
+  }
+
+  // Cancelar edición
+  cancelarEdicion(): void {
+    this.mostrarFormularioEditar = false;
+    this.mostrarFormularioAgregar = false;
+  }
+
+  // Validación para el template
+  formularioValido(pelicula: any): boolean {
+    if (!pelicula) return false;
+    
+    // Validación básica de campos requeridos
+    const camposRequeridos = [
+      'strNombre',
+      'strGenero',
+      'strSinapsis',
+      'strHorario',
+      'strImagen',
+      'idSala'
+    ];
+    
+    for (const campo of camposRequeridos) {
+      if (!pelicula[campo]) return false;
+    }
+    
+    // Validación de sala
+    if (pelicula.idSala < 1 || pelicula.idSala > 5) return false;
+    
+    // Validación de URL de trailer si existe
+    if (pelicula.strTrailerURL && !this.validarUrlTrailer(pelicula.strTrailerURL)) return false;
+    
+    return true;
+  }
+
+  // Validación de URL de YouTube
+  validarUrlTrailer(url: string): boolean {
+    if (!url) return true;
+    
+    const patterns = [
+      /^https?:\/\/(www\.)?youtube\.com\/watch\?v=([^#&?]{11})/,
+      /^https?:\/\/(www\.)?youtu\.be\/([^#&?]{11})/,
+      /^https?:\/\/(www\.)?youtube\.com\/embed\/([^#&?]{11})/
+    ];
+    
+    return patterns.some(pattern => pattern.test(url));
+  }
+
+  // Inicializar objeto película
   private inicializarPelicula() {
     return {
-      strNombre: '',       // << Nombre exacto para backend
-      strGenero: '',       // << Nombre exacto
-      strSinapsis: '',     // << Nombre exacto
-      strHorario: '',      // << Nombre exacto
-      idSala: 1,          // << Asegurar que sea número (no null)
-      strImagen: ''        // << Nombre exacto
+      strNombre: '',
+      strGenero: '',
+      strSinapsis: '',
+      strHorario: '',
+      idSala: 1,
+      strImagen: '',
+      strTrailerURL: ''
     };
   }
 
-  // Validación de película
-  // Validación de película
-private validarPelicula(pelicula: any): boolean {
-  const validString = (str: string) => !/<.*?>/.test(str.trim());
-  
-  const trimStart = (str: string) => str.replace(/^\s+/g, '');
+  // Validación completa de película
+  private validarPelicula(pelicula: any): boolean {
+    const validString = (str: string) => !/<.*?>/.test(str.trim());
+    const trimStart = (str: string) => str.replace(/^\s+/g, '');
 
-  pelicula.strNombre = trimStart(pelicula.strNombre.trim());
-  pelicula.strGenero = trimStart(pelicula.strGenero.trim());
-  pelicula.strSinapsis = trimStart(pelicula.strSinapsis.trim());
-  pelicula.strHorario = trimStart(pelicula.strHorario.trim());
-  pelicula.strImagen = trimStart(pelicula.strImagen.trim());
+    // Limpiar y validar campos de texto
+    pelicula.strNombre = trimStart(pelicula.strNombre?.trim() || '');
+    pelicula.strGenero = trimStart(pelicula.strGenero?.trim() || '');
+    pelicula.strSinapsis = trimStart(pelicula.strSinapsis?.trim() || '');
+    pelicula.strHorario = trimStart(pelicula.strHorario?.trim() || '');
+    pelicula.strImagen = trimStart(pelicula.strImagen?.trim() || '');
+    pelicula.strTrailerURL = trimStart(pelicula.strTrailerURL?.trim() || '');
 
-  if (
-    !pelicula.strNombre ||
-    !pelicula.strGenero ||
-    !pelicula.strSinapsis ||
-    !pelicula.strHorario ||
-    !pelicula.strImagen ||
-    !validString(pelicula.strNombre) ||
-    !validString(pelicula.strGenero) ||
-    !validString(pelicula.strSinapsis)
-  ) {
-    alert('Por favor, complete todos los campos correctamente, sin espacios al principio.');
-    return false;
+    // Validar campos requeridos
+    if (
+      !pelicula.strNombre ||
+      !pelicula.strGenero ||
+      !pelicula.strSinapsis ||
+      !pelicula.strHorario ||
+      !pelicula.strImagen ||
+      !validString(pelicula.strNombre) ||
+      !validString(pelicula.strGenero) ||
+      !validString(pelicula.strSinapsis)
+    ) {
+      alert('Por favor, complete todos los campos obligatorios correctamente, sin espacios al principio.');
+      return false;
+    }
+
+    // Validar sala
+    if (isNaN(pelicula.idSala)) {
+      alert('El ID de sala debe ser un número');
+      return false;
+    }
+
+    if (pelicula.idSala < 1 || pelicula.idSala > 5) {
+      alert('El ID de la sala debe ser un valor entre 1 y 5.');
+      return false;
+    }
+
+    // Validar URL de trailer
+    if (pelicula.strTrailerURL && !this.validarUrlTrailer(pelicula.strTrailerURL)) {
+      alert('La URL del tráiler no es válida. Debe ser una URL de YouTube.');
+      return false;
+    }
+
+    // Validar límites de caracteres
+    const limites = {
+      strNombre: 100,
+      strGenero: 50,
+      strSinapsis: 500,
+      strHorario: 50,
+      strImagen: 255,
+      strTrailerURL: 255
+    };
+
+    for (const [campo, limite] of Object.entries(limites)) {
+      if (pelicula[campo] && pelicula[campo].length > limite) {
+        alert(`El campo ${campo} ha excedido el límite de ${limite} caracteres.`);
+        return false;
+      }
+    }
+
+    return true;
   }
-
-  // ✅ Validación extra agregada: que idSala sea número válido
-  if (isNaN(pelicula.idSala)) {
-    alert('El ID de sala debe ser un número');
-    return false;
-  }
-
-  if (pelicula.idSala < 1 || pelicula.idSala > 5) {
-    alert('El ID de la sala debe ser un valor entre 1 y 5.');
-    return false;
-  }
-
-  const limites = {
-    strNombre: 100,
-    strGenero: 50,
-    strSinapsis: 500,
-    strHorario: 50,
-    strImagen: 255
-  };
-
-  if (
-    pelicula.strNombre.length > limites.strNombre ||
-    pelicula.strGenero.length > limites.strGenero ||
-    pelicula.strSinapsis.length > limites.strSinapsis ||
-    pelicula.strHorario.length > limites.strHorario ||
-    pelicula.strImagen.length > limites.strImagen
-  ) {
-    alert('Uno o más campos han alcanzado el límite de caracteres permitido.');
-    return false;
-  }
-
-  return true;
-}
-
 
   // Manejo de errores
   private manejarError(error: any, accion: string): void {
