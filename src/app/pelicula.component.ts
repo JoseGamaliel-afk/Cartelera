@@ -141,22 +141,23 @@ export class PeliculaComponent implements OnInit {
     if (pelicula.idSala < 1 || pelicula.idSala > 5) return false;
     
     // Validación de URL de trailer si existe
-    if (pelicula.strTrailerURL && !this.validarUrlTrailer(pelicula.strTrailerURL)) return false;
+    if (pelicula.strTrailerURL && !this.validarUrl(pelicula.strTrailerURL)) return false;
     
     return true;
   }
 
-  // Validación de URL de YouTube
-  validarUrlTrailer(url: string): boolean {
+  // Validación de URL genérica
+  validarUrl(url: string): boolean {
     if (!url) return true;
     
-    const patterns = [
-      /^https?:\/\/(www\.)?youtube\.com\/watch\?v=([^#&?]{11})/,
-      /^https?:\/\/(www\.)?youtu\.be\/([^#&?]{11})/,
-      /^https?:\/\/(www\.)?youtube\.com\/embed\/([^#&?]{11})/
-    ];
-    
-    return patterns.some(pattern => pattern.test(url));
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      // Patrón alternativo para navegadores antiguos
+      const pattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+      return pattern.test(url);
+    }
   }
 
   // Inicializar objeto película
@@ -211,9 +212,9 @@ export class PeliculaComponent implements OnInit {
       return false;
     }
 
-    // Validar URL de trailer
-    if (pelicula.strTrailerURL && !this.validarUrlTrailer(pelicula.strTrailerURL)) {
-      alert('La URL del tráiler no es válida. Debe ser una URL de YouTube.');
+    // Validar URL de trailer (ahora acepta cualquier URL válida)
+    if (pelicula.strTrailerURL && !this.validarUrl(pelicula.strTrailerURL)) {
+      alert('La URL proporcionada no es válida. Por favor ingrese una URL válida.');
       return false;
     }
 
